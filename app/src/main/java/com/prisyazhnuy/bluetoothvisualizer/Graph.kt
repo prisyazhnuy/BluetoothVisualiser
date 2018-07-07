@@ -20,14 +20,19 @@ class Graph : View {
     private var textWidth: Float = 0f
     private var textHeight: Float = 0f
     private var circlePaint: Paint? = null
+    private val linePaint = Paint().apply {
+        color = Color.BLACK
+        strokeWidth = 5f
+        textSize = 25f
+    }
 
-    private var _data: List<String>? = listOf("Circle1", "Circle2", "Circle3", "Circle4", "Circle5")
+    private var _data: List<String>? = null//listOf("Circle1", "Circle2", "Circle3", "Circle4", "Circle5")
 
     var data: List<String>?
         get() = _data
         set(value) {
             _data = value
-//        invalidateData()
+            invalidate()
         }
     /**
      * The text to draw
@@ -137,21 +142,31 @@ class Graph : View {
         val contentHeight = height - paddingTop - paddingBottom
 
 
-        canvas.drawCircle(contentWidth / 2f, contentHeight / 2f, 25f, circlePaint)
+        val xC = contentWidth / 2f
+        val yC = contentHeight / 2f
 
         data?.let {
             val distance = getDistanceBTWCircles(contentHeight / 4, it.size).toInt()
-            var xD = contentWidth / 2f
-            var yD = contentHeight / 4f
-            canvas.drawCircle(xD, yD, 15f, circlePaint)
+
+
             it.forEach {
-                with(getCircleCenter(contentWidth / 2f, contentHeight / 2f, contentHeight / 4, xD, yD, distance)) {
-                    xD = first
-                    yD = second
-                    canvas.drawCircle(xD, xD, 15f, circlePaint)
-                }
+                val xD = Math.random().toFloat() * contentWidth
+                val yD = Math.random().toFloat() * contentHeight
+                canvas.drawText(it, xD, yD - 50f, linePaint)
+                canvas.drawLine(xD, yD, xC, yC, linePaint)
+                canvas.drawCircle(xD, yD, 40f, circlePaint)
+
+//                with(getCircleCenter(contentWidth / 2f, contentHeight / 2f, contentHeight / 4, xD, yD, distance)) {
+//                    xD = first
+//                    yD = second
+//                    canvas.drawCircle(xD, xD, 40f, circlePaint)
+//                    canvas.drawLine(xD, yD, xC, yC, linePaint)
+//                }
             }
         }
+
+        canvas.drawCircle(contentWidth / 2f, contentHeight / 2f, 50f, circlePaint)
+
 
 
         exampleString?.let {
