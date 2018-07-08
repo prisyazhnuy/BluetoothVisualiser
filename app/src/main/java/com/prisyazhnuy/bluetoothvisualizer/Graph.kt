@@ -26,14 +26,22 @@ class Graph : View {
         textSize = 25f
     }
 
-    private var _data: List<String>? = null//listOf("Circle1", "Circle2", "Circle3", "Circle4", "Circle5")
+    private var _data = mutableListOf<Int>()//listOf("Circle1", "Circle2", "Circle3", "Circle4", "Circle5")
 
-    var data: List<String>?
+    var data: List<Int>?
         get() = _data
         set(value) {
-            _data = value
-            invalidate()
+            value?.let {
+                _data.addAll(value)
+                invalidate()
+            }
         }
+
+    fun addItem(item: Int) {
+        _data.add(item)
+        invalidate()
+    }
+
     /**
      * The text to draw
      */
@@ -152,7 +160,7 @@ class Graph : View {
             it.forEach {
                 val xD = Math.random().toFloat() * contentWidth
                 val yD = Math.random().toFloat() * contentHeight
-                canvas.drawText(it, xD, yD - 50f, linePaint)
+//                canvas.drawText(it, xD, yD - 50f, linePaint)
                 canvas.drawLine(xD, yD, xC, yC, linePaint)
                 canvas.drawCircle(xD, yD, 40f, circlePaint)
 

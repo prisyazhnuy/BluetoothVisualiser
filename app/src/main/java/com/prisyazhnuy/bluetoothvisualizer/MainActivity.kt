@@ -33,16 +33,22 @@ class MainActivity : AppCompatActivity() {
 
     val scanResults = mutableMapOf<String, BluetoothDevice>()
 
-    private val leScanCallback = BluetoothAdapter.LeScanCallback { p0, p1, p2 -> addScanResult(p0) }
+    private val leScanCallback = BluetoothAdapter.LeScanCallback { p0, p1, p2 -> addScanResult(p0, p1, p2) }
 
     private val scanCallback = object : ScanCallback() {
 
         override fun onScanResult(callbackType: Int, result: ScanResult) {
-            addScanResult(result.device)
+            with(result) {
+                addScanResult(device, rssi, scanRecord.bytes)
+            }
         }
 
         override fun onBatchScanResults(results: List<ScanResult>) {
-            results.forEach { addScanResult(it.device) }
+            results.forEach {
+                with(it) {
+                    addScanResult(device, rssi, scanRecord.bytes)
+                }
+            }
         }
 
         override fun onScanFailed(errorCode: Int) {
@@ -57,18 +63,20 @@ class MainActivity : AppCompatActivity() {
             val action = intent.action
             if (BluetoothDevice.ACTION_FOUND == action) {
                 val device = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                val rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE)
                 // Create a new device item
-                addScanResult(device)
+                addScanResult(device, rssi.toInt(), byteArrayOf())
             }
         }
     }
 
-    private fun addScanResult(device: BluetoothDevice) {
+    private fun addScanResult(device: BluetoothDevice, rssi: Int, scanRecord: ByteArray) {
         val deviceAddress = device.address
         Log.d(TAG, "addScanResult $deviceAddress  $device")
         Toast.makeText(this@MainActivity, "find device $deviceAddress  $device", Toast.LENGTH_LONG).show()
         scanResults[deviceAddress] = device
-        graph.data = scanResults.values.map { it.name }
+        val iBeacon = IBeacon.fromScanData(scanRecord, rssi)
+        graph.addItem(iBeacon.getAccuracy().toInt())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
